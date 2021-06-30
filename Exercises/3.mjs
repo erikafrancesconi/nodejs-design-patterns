@@ -38,16 +38,16 @@ class FindRegex extends EventEmitter {
   }
 }
 
-const findRegexInstance = new FindRegex(/hello \w+/);
-findRegexInstance
-  .addFile("fileA.txt")
-  .addFile("fileB.json")
-  .on("findstarted", (files) => console.log(`Find started in ${files}`))
-  .find()
-  .on("found", (file, match) =>
-    console.log(`Matched "${match}" in file ${file}`)
-  )
-  .on("error", (err) => console.error(`Error emitted ${err.message}`));
+// const findRegexInstance = new FindRegex(/hello \w+/);
+// findRegexInstance
+//   .addFile("fileA.txt")
+//   .addFile("fileB.json")
+//   .on("findstarted", (files) => console.log(`Find started in ${files}`))
+//   .find()
+//   .on("found", (file, match) =>
+//     console.log(`Matched "${match}" in file ${file}`)
+//   )
+//   .on("error", (err) => console.error(`Error emitted ${err.message}`));
 
 // 3.2 Ticker
 // Write a function that accepts a number and a callback as the
@@ -63,6 +63,8 @@ const ticker = (number, callback) => {
   }
 
   const emitter = new EventEmitter();
+  process.nextTick(() => emitter.emit("tick")); // 3.3
+
   let ticks = 0,
     ms = 0;
 
@@ -81,10 +83,14 @@ const ticker = (number, callback) => {
   return emitter;
 };
 
-ticker(1000, (err, ticks) => {
+ticker(150, (err, ticks) => {
   if (err) {
     console.error(err);
     return;
   }
   console.log(`Ticked ${ticks} times`);
 }).on("tick", () => console.log("Ticked"));
+
+// 3.3 A simple modification
+// Modify the function created in exercise 3.2 so that
+// it emits a tick event immediately after the function is invoked
