@@ -58,24 +58,39 @@ class FindRegex extends EventEmitter {
 // count of tick events emitted. Hint: you can use setTimeout() to schedule
 // another setTimeout() recursively.
 const ticker = (number, callback) => {
+  const emitter = new EventEmitter();
+
   if (number < 50) {
-    return callback("Wrong input, number should be >= 50");
+    callback("Wrong input, number should be >= 50");
+    return emitter;
   }
 
-  const emitter = new EventEmitter();
+  if (Date.now() % 5 === 0) {
+    process.nextTick(() => emitter.emit("error", "Timestamp divisible by 5"));
+    callback("Timestamp divisible by 5");
+    return emitter;
+  }
+
   process.nextTick(() => emitter.emit("tick")); // 3.3
 
   let ticks = 0,
     ms = 0;
 
   const ticktick = () => {
+    if (Date.now() % 5 === 0) {
+      process.nextTick(() => emitter.emit("error", "Timestamp divisible by 5"));
+      callback("Timestamp divisible by 5");
+      return emitter;
+    }
+
     ticks++;
     emitter.emit("tick");
     ms += 50;
     if (ms < number) {
       return setTimeout(ticktick, 50);
     }
-    return callback(null, ticks);
+    callback(null, ticks);
+    return emitter;
   };
 
   setTimeout(ticktick, 50);
@@ -83,14 +98,24 @@ const ticker = (number, callback) => {
   return emitter;
 };
 
-ticker(150, (err, ticks) => {
+ticker(10000, (err, ticks) => {
   if (err) {
-    console.error(err);
+    console.error(`Caught error ${err}`);
     return;
   }
   console.log(`Ticked ${ticks} times`);
-}).on("tick", () => console.log("Ticked"));
+})
+  .on("tick", () => console.log("Ticked"))
+  .on("error", (err) => console.error(err));
 
 // 3.3 A simple modification
 // Modify the function created in exercise 3.2 so that
 // it emits a tick event immediately after the function is invoked
+
+// 3.4 Playing with errors
+// Modify the function created in exercise 3.3 so that
+// it produces an error if the timestamp at the moment of a tick (including the
+// initial one that we added as part of exercise 3.3) is divisible by 5. Propagate
+// the error using both the callback and the event emitter. Hint: use Date.now()
+// to get the timestamp and the ramainder (%) operator to check whetger the
+// timestamp is divisible by 5.
