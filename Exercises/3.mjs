@@ -66,6 +66,7 @@ const ticker = (number, callback) => {
   }
 
   if (Date.now() % 5 === 0) {
+    // 3.4
     process.nextTick(() => emitter.emit("error", "Timestamp divisible by 5"));
     callback("Timestamp divisible by 5");
     return emitter;
@@ -78,6 +79,7 @@ const ticker = (number, callback) => {
 
   const ticktick = () => {
     if (Date.now() % 5 === 0) {
+      // 3.4
       process.nextTick(() => emitter.emit("error", "Timestamp divisible by 5"));
       callback("Timestamp divisible by 5");
       return emitter;
