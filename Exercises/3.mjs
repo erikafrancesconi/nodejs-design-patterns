@@ -38,16 +38,16 @@ class FindRegex extends EventEmitter {
   }
 }
 
-// const findRegexInstance = new FindRegex(/hello \w+/);
-// findRegexInstance
-//   .addFile("fileA.txt")
-//   .addFile("fileB.json")
-//   .on("findstarted", (files) => console.log(`Find started in ${files}`))
-//   .find()
-//   .on("found", (file, match) =>
-//     console.log(`Matched "${match}" in file ${file}`)
-//   )
-//   .on("error", (err) => console.error(`Error emitted ${err.message}`));
+const findRegexInstance = new FindRegex(/hello \w+/);
+findRegexInstance
+  .addFile("fileA.txt")
+  .addFile("fileB.json")
+  .on("findstarted", (files) => console.log(`Find started in ${files}`))
+  .find()
+  .on("found", (file, match) =>
+    console.log(`Matched "${match}" in file ${file}`)
+  )
+  .on("error", (err) => console.error(`Error emitted ${err.message}`));
 
 // 3.2 Ticker
 // Write a function that accepts a number and a callback as the
