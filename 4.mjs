@@ -1,4 +1,4 @@
-import { appendFile, readFile, writeFile } from "fs";
+import { appendFile, readFile } from "fs";
 
 // 4.1: File concatenation
 // write the implementation of concatFiles(), a
@@ -26,13 +26,13 @@ const concatFiles = (dest, cb, ...srcFiles) => {
 };
 
 concatFiles(
-  "dest.txt",
+  "files/dest.txt",
   (err) => {
     if (err) {
       return console.error(err);
     }
     console.log("Finished");
   },
-  "fileA.txt",
-  "fileB.json"
+  "files/fileA.txt",
+  "files/fileB.json"
 );

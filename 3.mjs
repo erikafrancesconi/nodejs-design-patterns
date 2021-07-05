@@ -40,8 +40,8 @@ class FindRegex extends EventEmitter {
 
 const findRegexInstance = new FindRegex(/hello \w+/);
 findRegexInstance
-  .addFile("fileA.txt")
-  .addFile("fileB.json")
+  .addFile("files/fileA.txt")
+  .addFile("files/fileB.json")
   .on("findstarted", (files) => console.log(`Find started in ${files}`))
   .find()
   .on("found", (file, match) =>
