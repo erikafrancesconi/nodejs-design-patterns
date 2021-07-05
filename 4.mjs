@@ -53,18 +53,20 @@ concatFiles(
 const listFiles = (dir, cb) => {
   const fileList = [];
 
+  const checkFile = (file) => {
+    if (lstatSync(file).isFile()) {
+      fileList.push(file);
+    } else {
+      listNestedFiles(file, cb, file);
+    }
+  };
+
   readdir(dir, (err, files) => {
     if (err) {
       return cb(err);
     }
 
-    files.forEach((file) => {
-      if (lstatSync(`${dir}/${file}`).isFile()) {
-        fileList.push(`${dir}/${file}`);
-      } else {
-        listNestedFiles(`${dir}/${file}`, cb, `${dir}/${file}`);
-      }
-    });
+    files.forEach((file) => checkFile(`${dir}/${file}`));
 
     return cb(null, fileList);
   });
