@@ -1,4 +1,4 @@
-import { appendFile, readFile } from "fs";
+import { appendFile, readFile, readdir, lstat } from "fs";
 
 // 4.1: File concatenation
 // write the implementation of concatFiles(), a
@@ -7,6 +7,10 @@ import { appendFile, readFile } from "fs";
 // This function must copy the contents of every source file into the destination
 // file, respecting the order of the files, as provided by the arguments list.
 const concatFiles = (dest, cb, ...srcFiles) => {
+  if (srcFiles.length === 0) {
+    return process.nextTick(cb);
+  }
+
   const iterate = (index) => {
     if (index === srcFiles.length) {
       return cb();
@@ -22,6 +26,7 @@ const concatFiles = (dest, cb, ...srcFiles) => {
       });
     });
   };
+
   iterate(0);
 };
 
