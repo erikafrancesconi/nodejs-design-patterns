@@ -107,8 +107,11 @@ const listAll = () => {
 // contain the give keyword in the file contents. The list of matching files
 // should be returned using the callback when the search is completed. If no
 // matching file is found, the callback  must be invoked with an empty array.
+// 4.3.1 Bonus points if you make the search recursive (it looks for the text files in any
+// subdirectory as well).
 const getFiles = (dir, cb) => {
-  const fileList = [];
+  let fileList = [],
+    subdirs = 0;
 
   readdir(dir, (err, files) => {
     if (err) {
@@ -117,11 +120,28 @@ const getFiles = (dir, cb) => {
 
     files.forEach((file) => {
       if (lstatSync(`${dir}/${file}`).isFile()) {
-        fileList.push(file);
+        fileList.push(`${dir}/${file}`);
+      } else {
+        // 4.3.1
+        subdirs++;
+        getFiles(`${dir}/${file}`, (err, fileListSubDir) => {
+          if (err) {
+            return cb(err);
+          }
+
+          fileList = fileList.concat(fileListSubDir);
+          subdirs--;
+
+          if (subdirs === 0) {
+            return cb(null, fileList);
+          }
+        });
       }
     });
 
-    return cb(null, fileList);
+    if (subdirs === 0) {
+      return cb(null, fileList);
+    }
   });
 };
 
@@ -149,7 +169,7 @@ const searchDir = (dir, keyword, cb) => {
     let completed = 0;
 
     files.forEach((file) => {
-      searchFile(`${dir}/${file}`, keyword, (found) => {
+      searchFile(file, keyword, (found) => {
         if (found) {
           fileList.push(file);
         }
@@ -160,33 +180,6 @@ const searchDir = (dir, keyword, cb) => {
       });
     });
   });
-
-  // const fileList = [];
-
-  // readdir(dir, (err, files) => {
-  //   if (err) {
-  //     return cb(err);
-  //   }
-
-  //   files.forEach((file) => {
-  //     if (lstatSync(`${dir}/${file}`).isFile()) {
-  //       const data = readFileSync(`${dir}/${file}`, "utf-8");
-  //       if (data.indexOf(keyword) >= 0) {
-  //         fileList.push(file);
-  //       }
-  //       // readFile(`${dir}/${file}`, "utf-8", (err, data) => {
-  //       //   if (err) {
-  //       //     return cb(err);
-  //       //   }
-
-  //       //   if (data.indexOf(keyword) >= 0) {
-  //       //     fileList.push(file);
-  //       //   }
-  //       // });
-  //     }
-  //   });
-  //   return cb(null, fileList);
-  // });
 };
 
 const recursiveFind = (dir, keyword, cb) => {
@@ -200,13 +193,9 @@ const recursiveFind = (dir, keyword, cb) => {
   searchDir(dir, keyword, done);
 };
 
-recursiveFind(
-  "/home/erika/Lavori/Learning/nodejs-design-patterns/files",
-  "hello",
-  (err, files) => {
-    if (err) {
-      return console.error(err);
-    }
-    console.log(files);
+recursiveFind("/home/erika/testdir", "hello", (err, files) => {
+  if (err) {
+    return console.error(err);
   }
-);
+  console.log("String found in files:", files);
+});
