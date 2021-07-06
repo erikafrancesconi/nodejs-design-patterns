@@ -1,4 +1,4 @@
-import { appendFile, readFile, readdir, lstatSync } from "fs";
+import { appendFile, readFile, readdir, lstatSync, readFileSync } from "fs";
 import { dirname } from "path";
 
 // 4.1: File concatenation
@@ -31,17 +31,17 @@ const concatFiles = (dest, cb, ...srcFiles) => {
   iterate(0);
 };
 
-concatFiles(
-  "files/dest.txt",
-  (err) => {
-    if (err) {
-      return console.error(err);
-    }
-    // console.log("Finished");
-  },
-  "files/fileA.txt",
-  "files/fileB.json"
-);
+// concatFiles(
+//   "files/dest.txt",
+//   (err) => {
+//     if (err) {
+//       return console.error(err);
+//     }
+//     // console.log("Finished");
+//   },
+//   "files/fileA.txt",
+//   "files/fileB.json"
+// );
 
 // 4.2 List files recursively
 // Write listNestedFiles(), a callback-style function
@@ -98,4 +98,115 @@ const listAll = () => {
   });
 };
 
-listAll();
+// listAll();
+
+// 4.3 Recursive find
+// Write recursiveFind(), a callback-style function that
+// takes a path to a directory in the local filesystem and a keyword
+// The function must find all the text files within the given directory that
+// contain the give keyword in the file contents. The list of matching files
+// should be returned using the callback when the search is completed. If no
+// matching file is found, the callback  must be invoked with an empty array.
+const getFiles = (dir, cb) => {
+  const fileList = [];
+
+  readdir(dir, (err, files) => {
+    if (err) {
+      return cb(err);
+    }
+
+    files.forEach((file) => {
+      if (lstatSync(`${dir}/${file}`).isFile()) {
+        fileList.push(file);
+      }
+    });
+
+    return cb(null, fileList);
+  });
+};
+
+const searchFile = (file, keyword, cb) => {
+  readFile(file, "utf-8", (err, data) => {
+    if (err) {
+      return cb(false);
+    }
+
+    if (data.indexOf(keyword) >= 0) {
+      return cb(true);
+    }
+    return cb(false);
+  });
+};
+
+const searchDir = (dir, keyword, cb) => {
+  const fileList = [];
+
+  getFiles(dir, (err, files) => {
+    if (err) {
+      return cb(err);
+    }
+
+    let completed = 0;
+
+    files.forEach((file) => {
+      searchFile(`${dir}/${file}`, keyword, (found) => {
+        if (found) {
+          fileList.push(file);
+        }
+
+        if (++completed === files.length) {
+          return cb(null, fileList);
+        }
+      });
+    });
+  });
+
+  // const fileList = [];
+
+  // readdir(dir, (err, files) => {
+  //   if (err) {
+  //     return cb(err);
+  //   }
+
+  //   files.forEach((file) => {
+  //     if (lstatSync(`${dir}/${file}`).isFile()) {
+  //       const data = readFileSync(`${dir}/${file}`, "utf-8");
+  //       if (data.indexOf(keyword) >= 0) {
+  //         fileList.push(file);
+  //       }
+  //       // readFile(`${dir}/${file}`, "utf-8", (err, data) => {
+  //       //   if (err) {
+  //       //     return cb(err);
+  //       //   }
+
+  //       //   if (data.indexOf(keyword) >= 0) {
+  //       //     fileList.push(file);
+  //       //   }
+  //       // });
+  //     }
+  //   });
+  //   return cb(null, fileList);
+  // });
+};
+
+const recursiveFind = (dir, keyword, cb) => {
+  const done = (err, files) => {
+    if (err) {
+      return cb(err);
+    }
+    return cb(err, files);
+  };
+
+  searchDir(dir, keyword, done);
+};
+
+recursiveFind(
+  "/home/erika/Lavori/Learning/nodejs-design-patterns/files",
+  "hello",
+  (err, files) => {
+    if (err) {
+      return console.error(err);
+    }
+    console.log(files);
+  }
+);
