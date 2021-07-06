@@ -1,5 +1,6 @@
 import { appendFile, readFile, readdir, lstatSync, readFileSync } from "fs";
 import { dirname } from "path";
+import { TaskQueue } from "./libs/TaskQueue.mjs";
 
 // 4.1: File concatenation
 // write the implementation of concatFiles(), a
@@ -109,6 +110,9 @@ const listAll = () => {
 // matching file is found, the callback  must be invoked with an empty array.
 // 4.3.1 Bonus points if you make the search recursive (it looks for the text files in any
 // subdirectory as well).
+// 4.3.2 Extra bonus points if you manage to perform the
+// search within different files and subdirectories in parallel, but be careful to
+// keep the number of parallel tasks under control!
 const getFiles = (dir, cb) => {
   let fileList = [],
     subdirs = 0;
@@ -148,54 +152,38 @@ const getFiles = (dir, cb) => {
 const searchFile = (file, keyword, cb) => {
   readFile(file, "utf-8", (err, data) => {
     if (err) {
-      return cb(false);
+      return cb(err);
     }
 
     if (data.indexOf(keyword) >= 0) {
-      return cb(true);
+      filesWithString.push(file);
     }
-    return cb(false);
+    return cb();
   });
 };
 
 const searchDir = (dir, keyword, cb) => {
-  const fileList = [];
-
   getFiles(dir, (err, files) => {
     if (err) {
       return cb(err);
     }
 
-    let completed = 0;
-
     files.forEach((file) => {
-      searchFile(file, keyword, (found) => {
-        if (found) {
-          fileList.push(file);
-        }
-
-        if (++completed === files.length) {
-          return cb(null, fileList);
-        }
+      queue.pushTask((done) => {
+        searchFile(file, keyword, done);
       });
     });
   });
 };
 
-const recursiveFind = (dir, keyword, cb) => {
-  const done = (err, files) => {
-    if (err) {
-      return cb(err);
-    }
-    return cb(err, files);
-  };
+const filesWithString = [];
+console.time("Recursive Find");
 
-  searchDir(dir, keyword, done);
-};
-
-recursiveFind("/home/erika/testdir", "hello", (err, files) => {
-  if (err) {
-    return console.error(err);
-  }
-  console.log("String found in files:", files);
+const queue = new TaskQueue(2);
+queue.on("error", console.error);
+queue.on("empty", () => {
+  console.log("String found in files:", filesWithString);
+  console.timeEnd("Recursive Find");
 });
+
+searchDir("/home/erika/testdir", "hello", (err) => console.error);
