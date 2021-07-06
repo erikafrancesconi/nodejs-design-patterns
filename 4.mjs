@@ -1,5 +1,4 @@
-import { appendFile, readFile, readdir, lstatSync, readFileSync } from "fs";
-import { dirname } from "path";
+import { appendFile, readFile, readdir, lstatSync } from "fs";
 import { TaskQueue } from "./libs/TaskQueue.mjs";
 
 // 4.1: File concatenation
@@ -32,17 +31,17 @@ const concatFiles = (dest, cb, ...srcFiles) => {
   iterate(0);
 };
 
-// concatFiles(
-//   "files/dest.txt",
-//   (err) => {
-//     if (err) {
-//       return console.error(err);
-//     }
-//     // console.log("Finished");
-//   },
-//   "files/fileA.txt",
-//   "files/fileB.json"
-// );
+concatFiles(
+  "files/dest.txt",
+  (err) => {
+    if (err) {
+      return console.error(err);
+    }
+    // console.log("Finished");
+  },
+  "files/fileA.txt",
+  "files/fileB.json"
+);
 
 // 4.2 List files recursively
 // Write listNestedFiles(), a callback-style function
@@ -99,7 +98,7 @@ const listAll = () => {
   });
 };
 
-// listAll();
+listAll();
 
 // 4.3 Recursive find
 // Write recursiveFind(), a callback-style function that
