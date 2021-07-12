@@ -65,3 +65,19 @@ promiseEverything([promise1, promise2, promise3])
 // recursion. Beware of the recursive Promise resolution memory leak!
 
 // La soluzione è nel file TaskQueuePCPromises.mjs
+
+// 5.4 An asynchronous map():
+// Implement a parallel asynchronous version
+// of Array.map() that supports promises and a concurrency limit. The
+// function should not directly leverage the TaskQueue or TaskQueuePC
+// classes we presented in this chapter, but it can use the underlying patterns.
+/**
+ * @param iterable Array
+ * @param callback receives as the input each item of the iterable (esactly like in the original Array.map()) and can return either a Promise or a simple value.
+ * @param concurrency defines how many items in the iterable can be processed by callback in parallel at each given time
+ */
+const mapAsync = (iterable, callback, concurrency) => {};
+
+const array1 = [1, 4, 9, 16];
+const map1 = array1.map((x) => x * 2);
+console.log("Original map", map1);
