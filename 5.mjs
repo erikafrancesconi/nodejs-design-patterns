@@ -57,3 +57,11 @@ promiseEverything([promise1, promise2, promise3])
 // async/await everywhere
 
 // La soluzione è nel file TaskQueueAsyncAwait.mjs
+
+// 5.3 Producer-consumer with promises:
+// Update the TaskQueuePC class
+// internal methods so that they use just promises, removing any use of the
+// async/await syntax. Hint: the infinite loop must become an asynchronous
+// recursion. Beware of the recursive Promise resolution memory leak!
+
+// La soluzione è nel file TaskQueuePCPromises.mjs
