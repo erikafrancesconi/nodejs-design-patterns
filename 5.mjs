@@ -50,3 +50,10 @@ promiseEverything([promise1, promise2, promise3])
     console.log("Custom", values);
   })
   .catch((err) => console.log("Custom rejected:", err));
+
+// 5.2 TaskQueue with promises:
+// Migrate the TaskQueue class internals from
+// promises to async/await where possible. Hint: you won't be able to use
+// async/await everywhere
+
+// La soluzione è nel file TaskQueueAsyncAwait.mjs
