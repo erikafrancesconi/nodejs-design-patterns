@@ -38,18 +38,18 @@ const promiseEverything = async (promises) => {
 };
 
 // Promise.all([promise1, promise2, promise3, promise4])
-Promise.all([promise1, promise2, promise3])
-  .then((values) => {
-    console.log(values);
-  })
-  .catch((err) => console.log("Rejected:", err));
+// Promise.all([promise1, promise2, promise3])
+//   .then((values) => {
+//     console.log(values);
+//   })
+//   .catch((err) => console.log("Rejected:", err));
 
-// promiseEverything([promise1, promise2, promise3, promise4])
-promiseEverything([promise1, promise2, promise3])
-  .then((values) => {
-    console.log("Custom", values);
-  })
-  .catch((err) => console.log("Custom rejected:", err));
+// // promiseEverything([promise1, promise2, promise3, promise4])
+// promiseEverything([promise1, promise2, promise3])
+//   .then((values) => {
+//     console.log("Custom", values);
+//   })
+//   .catch((err) => console.log("Custom rejected:", err));
 
 // 5.2 TaskQueue with promises:
 // Migrate the TaskQueue class internals from
@@ -76,8 +76,38 @@ promiseEverything([promise1, promise2, promise3])
  * @param callback receives as the input each item of the iterable (esactly like in the original Array.map()) and can return either a Promise or a simple value.
  * @param concurrency defines how many items in the iterable can be processed by callback in parallel at each given time
  */
-const mapAsync = (iterable, callback, concurrency) => {};
+const mapAsync = (iterable, callback, concurrency) => {
+  const resArray = [];
+  const queue = [...iterable];
+  let running = 0;
 
-const array1 = [1, 4, 9, 16];
+  return new Promise((resolve, reject) => {
+    (function internalConsumer() {
+      while (queue.length && running < concurrency) {
+        const currQueueLength = queue.length - 1;
+        const currVal = queue.shift();
+        Promise.resolve(currVal).then((val) => {
+          resArray.push(callback(val));
+          running--;
+
+          internalConsumer(queue, callback, concurrency);
+
+          if (currQueueLength === 0) {
+            resolve(resArray);
+          }
+        });
+        running++;
+      }
+    })();
+  });
+};
+
+const array1 = [1, 4, 9, 16, 25, 42, 99, 1000, 3000, 999];
 const map1 = array1.map((x) => x * 2);
 console.log("Original map", map1);
+
+const test = async () => {
+  const map2 = await mapAsync(array1, (x) => x * 2, 3);
+  console.log("Custom map", map2);
+};
+await test();
